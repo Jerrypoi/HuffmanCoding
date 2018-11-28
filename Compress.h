@@ -7,9 +7,13 @@
 
 #include <string>
 #include <fstream>
+#include <iostream>
+#include <exception>
+#include "Huffman.h"
 using std::ofstream;
 using std::ifstream;
 using std::string;
 void compress(string inputFileName,string outFileName);
+vector<byte> longlong2bytes(long long paramInt);
 
 #endif //HUFFMANCODING_COMPRESS_H
