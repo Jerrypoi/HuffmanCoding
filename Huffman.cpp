@@ -3,11 +3,11 @@
 //
 
 #include "Huffman.h"
-HuffmanNode::HuffmanNode(bool is_leaf, byte value, long long int weight, HuffmanNode *rigth,HuffmanNode *left) {
+HuffmanNode::HuffmanNode(bool is_leaf, byte value, long long int weight, HuffmanNode *right,HuffmanNode *left) {
     this->is_leaf = is_leaf;
     this->value = value;
     this->weight = weight;
-    this->right_child = rigth;
+    this->right_child = right;
     this->left_child = left;
 }
 HuffmanNode::HuffmanNode(HuffmanNode *left, HuffmanNode *right) {
