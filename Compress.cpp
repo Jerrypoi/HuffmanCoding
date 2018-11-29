@@ -44,8 +44,9 @@ void compress(string inputFileName,string outFileName) {
     // TODO: do something if failing in opening file.
 
     auto bytes = longlong2bytes(filesize);
-    for(auto it = bytes.begin();it != bytes.end();it++) {
-
+    for(int i = 0;i < bytes.size();i++) {
+        outputFile.write((const char*)bytes[0], sizeof(byte));
     }
+
 
 }
