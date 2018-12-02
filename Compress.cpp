@@ -31,21 +31,46 @@ void compress(string inputFileName,string outFileName) {
             char_freq.insert(std::pair<byte,long long>(byte1,1));
         }
     }
-    // Printing out the whole frequency list.
-//    for(auto it = char_freq.begin();it != char_freq.end();it++) {
-//        std::cout<<it->first<<" "<<it->second<<std::endl;
-//    }
+//     Printing out the whole frequency list.
+    for (auto it = char_freq.begin(); it != char_freq.end(); it++) {
+        std::cout << it->first << " " << it->second << std::endl;
+    }
     vector<Huffman *> tree_list;
     for(auto it = char_freq.begin();it != char_freq.end();it++) {
         Huffman *tree = new Huffman(true,it->first,it->second);
         tree_list.push_back(tree);
     }
+
+    Huffman *tree = Huffman::build_tree(tree_list);
+    map<byte, string> char_map;
+    tree->traverse_tree(tree->get_root(), "", char_map);
+
+    // Print out the char_map for testing.
+    for (auto it = char_map.begin(); it != char_map.end(); it++) {
+        std::cout << it->first << " " << it->second << std::endl;
+    }
+
+
     ofstream outputFile(outFileName,std::ofstream::binary);
     // TODO: do something if failing in opening file.
 
+
+    // Write the table to the file.
     auto bytes = longlong2bytes(filesize);
     for(int i = 0;i < bytes.size();i++) {
         outputFile.write((const char*)bytes[0], sizeof(byte));
+        // TODO: error writing file here.
+    }
+
+    string code = "";
+    // Write the compressed data to the file.
+    for (long long i = 0; i < filesize; i++) {
+        byte key = inputFile.get();
+        std::cout << key << std::endl;
+        code = code + char_map[key];
+        while (code.length() > 8) {
+            std::cout << "Find" << std::endl;
+        }
     }
 
 

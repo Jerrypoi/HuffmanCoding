@@ -3,7 +3,7 @@
 using namespace std;
 int main() {
     std::cout << "Hello, World!" << std::endl;
-    compress(string("test.txt"),string("end"));
+    compress(string("test.txt"), string("end.txt"));
     cout<< sizeof(long long)<<endl;
     return 0;
 }
