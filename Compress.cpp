@@ -4,6 +4,8 @@
 
 
 #include "Compress.h"
+using std::cout;
+using std::cerr;
 vector<byte> longlong2bytes(long long paramInt) {
     vector<unsigned char> arrayOfByte(sizeof(long long));
     for (int i = 0; i < sizeof(long long); i++)
@@ -14,7 +16,7 @@ vector<byte> longlong2bytes(long long paramInt) {
 void compress(string inputFileName,string outFileName) {
     ifstream inputFile(inputFileName,std::ifstream::binary);
     // TODO: do something if failing in file opening.
-
+    cout<<"OK here"<<std::endl;
     // Find file size;
     long long filesize = 0;
     inputFile.seekg(0,inputFile.end);
@@ -58,20 +60,20 @@ void compress(string inputFileName,string outFileName) {
     // Write the table to the file.
     auto bytes = longlong2bytes(filesize);
     for(int i = 0;i < bytes.size();i++) {
-        outputFile.write((const char*)(bytes[0]), sizeof(byte));
+        byte temp = bytes[0];
+
+//        outputFile.write((const char*)(bytes[0]), sizeof(byte));
         // TODO: error writing file here.
     }
+    inputFile.seekg(0,inputFile.beg);
 
     string code = "";
     // Write the compressed data to the file.
     for (long long i = 0; i < filesize; i++) {
         byte key = inputFile.get();
-        std::cout << key << std::endl;
         code = code + char_map[key];
         while (code.length() > 8) {
             std::cout << "Find" << std::endl;
         }
     }
-
-
 }
