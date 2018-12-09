@@ -7,7 +7,7 @@ stages:
 Build:
   stage: Build
   script:
-    - cmake CMakeList.txt
+    - cmake CMakeLists.txt
     - make
   artifacts:
     paths:
