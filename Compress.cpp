@@ -58,7 +58,7 @@ void compress(string inputFileName,string outFileName) {
     // Write the table to the file.
     auto bytes = longlong2bytes(filesize);
     for(int i = 0;i < bytes.size();i++) {
-        outputFile.write((const char*)bytes[0], sizeof(byte));
+        outputFile.write((const char*)(bytes[0]), sizeof(byte));
         // TODO: error writing file here.
     }
 

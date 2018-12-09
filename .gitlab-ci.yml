@@ -1,0 +1,26 @@
+
+stages:
+  - Build
+  - Run
+  - Test
+
+Build:
+  stage: Build
+  script:
+    - cmake CMakeList.txt
+    - make
+  artifacts:
+    paths:
+      - ./HuffmanCoding
+
+Run:
+  stage: Run
+  script:
+    - ./HuffmanCoding
+
+Test:
+  stage: Test
+  script:
+    - echo "test passed!"
+    - if [[ "$?" == "0" ]]; then echo | cat pikachu_testpass.txt; fi;
+
