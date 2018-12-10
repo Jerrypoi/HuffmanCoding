@@ -9,7 +9,7 @@ using std::cerr;
 vector<byte> longlong2bytes(long long paramInt) {
     vector<unsigned char> arrayOfByte(sizeof(long long));
     for (int i = 0; i < sizeof(long long); i++)
-        arrayOfByte[3 - i] = (paramInt >> (i * 8));
+        arrayOfByte[sizeof(long long) - 1 - i] = (paramInt >> (i * 8));
     return arrayOfByte;
 }
 
@@ -52,20 +52,15 @@ void compress(string inputFileName,string outFileName) {
         std::cout << it->first << " " << it->second << std::endl;
     }
 
-
     ofstream outputFile(outFileName,std::ofstream::binary);
     // TODO: do something if failing in opening file.
-
-
-    // Write the table to the file.
-    auto bytes = longlong2bytes(filesize);
-    for(int i = 0;i < bytes.size();i++) {
-        byte temp = bytes[0];
-
-//        outputFile.write((const char*)(bytes[0]), sizeof(byte));
-        // TODO: error writing file here.
-    }
+    outputFile.write((const char*)&filesize, sizeof(filesize));
+    cout<<filesize<<std::endl;
     inputFile.seekg(0,inputFile.beg);
+
+    for(auto i = char_freq.begin();i != char_freq.end();i++) {
+
+    }
 
     string code = "";
     // Write the compressed data to the file.
@@ -73,7 +68,17 @@ void compress(string inputFileName,string outFileName) {
         byte key = inputFile.get();
         code = code + char_map[key];
         while (code.length() > 8) {
-            std::cout << "Find" << std::endl;
+//            std::cout << "Find" << std::endl;
+            break;
         }
+    }
+
+
+    outputFile.close();
+    inputFile.close();
+    inputFile.open("out.txt",ifstream::binary);
+    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(inputFile), {});
+    for(auto it = buffer.begin();it != buffer.end();it++) {
+        cout<<"it= "<<(int)*it<<std::endl;
     }
 }
