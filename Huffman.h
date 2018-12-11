@@ -47,7 +47,6 @@ public:
 
 class Huffman {
     HuffmanNode  *root;
-
 public:
     Huffman(bool is_leaf,byte value = 0,long long weight = 0, Huffman *left = nullptr, Huffman *right = nullptr);
     ~Huffman();

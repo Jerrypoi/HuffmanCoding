@@ -94,8 +94,11 @@ void compress(string inputFileName,string outFileName) {
             code = code.substr(8);
         }
     }
+
+
     //处理不满 8 位的 code
     byte out = code.length();
+    cout<<"Compressing last code len = " <<code.length()<<std::endl;
     outputFile.write((const char *)&out, sizeof(out));
 
     /*
@@ -129,5 +132,119 @@ void compress(string inputFileName,string outFileName) {
 }
 
 void decompress(string inputFileName,string outputFileName) {
+    ifstream inputFile(inputFileName,ifstream::binary);
+    std::vector<unsigned char> data(std::istreambuf_iterator<char>(inputFile), {});
+    long long filesize = 0;
+    int i;
+    for(i = 0;i < sizeof(long long);i++) {
+        filesize = filesize<<1;
+        filesize = filesize | data[i];
+    }
+    cout<<"Got filesize = "<<filesize<<std::endl;
+    inputFile.close();
+    long long count = 0;
+    map<byte,long long> char_freq;
+    while(count < filesize) {
+        byte temp = data[i];
+        long long freq = 0;
+        i++;
+        for(int j = 0;j < sizeof(long long);j++,i++) {
+            freq = freq << 1;
+            freq = freq | data[i];
+        }
+        char_freq.insert(std::pair<byte,long long>(temp,freq));
+        count += freq;
+    }
 
+
+    // This test is passed zo~
+    std::cout<<"decompress freq map:"<<std::endl;
+    for (auto it = char_freq.begin(); it != char_freq.end(); it++) {
+        std::cout << it->first << " " << it->second << std::endl;
+    }
+
+    // Build Huffman tree
+    vector<Huffman *> tree_list;
+    for(auto it = char_freq.begin();it != char_freq.end();it++) {
+        Huffman *tree = new Huffman(true,it->first,it->second);
+        tree_list.push_back(tree);
+    }
+
+    Huffman *tree = Huffman::build_tree(tree_list);
+
+    map<byte, string> char_map;
+    tree->traverse_tree(tree->get_root(), "", char_map);
+    // TODO: 反向建立 map？ 即，<string,byte> 型？
+    string code = "";
+    for(;i < data.size();i++) {
+        byte temp = data[i];
+        int j = 0;
+        for(j = 0;j < 8;j++) {
+            if((temp & 128) == 128) {
+                code += "1";
+            } else {
+                code += "0";
+            };
+            temp <<= 1;
+        }
+    }
+    cout<<"code size: "<<code.length()<<std::endl;
+    ofstream outputFile(outputFileName,ofstream::binary);
+    HuffmanNode *node = tree->get_root();
+    // First byte: the remaining bits length
+    while(code.size() > 16){
+        if(node->isleaf()) {
+            byte temp = node->get_value();
+            outputFile.write((const char*)&temp, sizeof(temp));
+            node = tree->get_root();
+        }
+        if(code[0] == '1') {
+            node = node->get_right_child();
+        } else {
+            node = node->get_left_child();
+        }
+        code = code.substr(1);
+    }
+
+
+//    HuffmanNode *node = tree->get_root();
+//    for(int i = 0;i < f)
+
+    string sub_code = code.substr(code.length()-16,8);
+
+
+    int last_len = 0;
+    for(int j = 0;j < 8;j++) {
+        last_len <<= 1;
+        if(sub_code[j] == '1' ) {
+            last_len = last_len | 1;
+        }
+    }
+    cout<<"subcode = "<<sub_code<<std::endl;
+    cout<<"last len = "<<last_len<<std::endl;
+    cout<<"current code = "<<code<<std::endl;
+    code = code.substr(0,code.length() - 16) + code.substr(code.length() - 8,last_len);
+    cout<<"last_code = "<<code<<std::endl;
+    while(code.length() > 0) {
+        if(node->isleaf()) {
+            byte temp = node->get_value();
+            outputFile.write((const char *)&temp, sizeof(temp));
+            node = tree->get_root();
+        }
+        if(code[0] == '1') {
+            node = node->get_right_child();
+        }
+        else {
+            node = node->get_left_child();
+        }
+        code = code.substr(1);
+    }
+    if(node->isleaf()) {
+        byte temp = node->get_value();
+        outputFile.write((const char *)&temp, sizeof(temp));
+        node = tree->get_root();
+    }
+
+    outputFile.close();
+    inputFile.close();
 }
