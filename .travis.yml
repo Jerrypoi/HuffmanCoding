@@ -6,10 +6,8 @@ compiler:
 - gcc
 - clang
 
-before_script:
-  - mkdir build
-  - cd build
-  - cmake ../CMakeLists.txt
 
 script:
-  -make
+  - cmake CMakeLists.txt
+  - make
+  - ./HuffmanCoding
