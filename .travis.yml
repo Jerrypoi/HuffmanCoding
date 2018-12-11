@@ -2,11 +2,6 @@ dist: trusty
 sudo: false
 language: cpp
 
-compiler:
-- gcc
-- clang
-
-
 script:
   - cmake CMakeLists.txt
   - make
