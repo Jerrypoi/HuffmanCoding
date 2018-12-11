@@ -1,3 +1,5 @@
+dist: trusty
+sudo: false
 language: cpp
 
 compiler:
@@ -5,8 +7,9 @@ compiler:
 - clang
 
 before_script:
-- mkdir build
-- cd build
-- cmake ..
+  - mkdir build
+  - cd build
+  - cmake ../CMakeLists.txt
 
-script: make && make test
+script:
+  -make
