@@ -14,6 +14,7 @@ using std::ofstream;
 using std::ifstream;
 using std::string;
 void compress(string inputFileName,string outFileName);
+void decompress(string inputFileName,string outputFileName);
 vector<byte> longlong2bytes(long long paramInt);
 
 #endif //HUFFMANCODING_COMPRESS_H

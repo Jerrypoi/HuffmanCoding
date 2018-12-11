@@ -16,7 +16,6 @@ vector<byte> longlong2bytes(long long paramInt) {
 void compress(string inputFileName,string outFileName) {
     ifstream inputFile(inputFileName,std::ifstream::binary);
     // TODO: do something if failing in file opening.
-    cout<<"OK here"<<std::endl;
     // Find file size;
     long long filesize = 0;
     inputFile.seekg(0,inputFile.end);
@@ -54,31 +53,81 @@ void compress(string inputFileName,string outFileName) {
 
     ofstream outputFile(outFileName,std::ofstream::binary);
     // TODO: do something if failing in opening file.
-    outputFile.write((const char*)&filesize, sizeof(filesize));
-    cout<<filesize<<std::endl;
+    auto bytes = longlong2bytes(filesize);
+    for(auto it = bytes.begin();it != bytes.end();it++) {
+        byte temp = *it;
+        outputFile.write((const char*)&temp, sizeof(temp));
+    }
+
     inputFile.seekg(0,inputFile.beg);
 
-    for(auto i = char_freq.begin();i != char_freq.end();i++) {
+    // Write the byte and it's frequency to the file.
+    for(auto it = char_freq.begin();it != char_freq.end();it++) {
+        byte temp = it->first;
+        auto bytes = longlong2bytes(it->second);
+        outputFile.write((const char*)&temp, sizeof(temp));// Write the byte to file
 
+        // Writing it's frequency.
+        for(auto i = bytes.begin();i != bytes.end();i++) {
+            byte temp = *i;
+            outputFile.write((const char*)&temp, sizeof(temp));
+        }
     }
+
 
     string code = "";
     // Write the compressed data to the file.
     for (long long i = 0; i < filesize; i++) {
         byte key = inputFile.get();
-        code = code + char_map[key];
+
+        code += char_map[key];
         while (code.length() > 8) {
-//            std::cout << "Find" << std::endl;
-            break;
+            byte out = 0;
+            for(int j = 0;j < 8;j++) {
+                out = out<<1;
+                if(code[j] == '1') {
+                    out = out|0x1;
+                }
+            }
+            outputFile.write((const char*)&out, sizeof(out));
+            out = 0;
+            code = code.substr(8);
         }
     }
+    //处理不满 8 位的 code
+    byte out = code.length();
+    outputFile.write((const char *)&out, sizeof(out));
 
-
+    /*
+     *     for i in range(len(code)):
+        out = out<<1
+        if code[i]=='1':
+            out = out|1
+            */
+    out = 0;
+    int i;
+    for(i = 0;i < code.length();i++) {
+        out = out<<1;
+        if(code[i] == '1')
+            out = out|0x1;
+    }
+    for(;i<8;i++) {
+        out = out<<1;
+    }
+    outputFile.write((const char*)&out, sizeof(out));
     outputFile.close();
     inputFile.close();
-    inputFile.open("out.txt",ifstream::binary);
-    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(inputFile), {});
-    for(auto it = buffer.begin();it != buffer.end();it++) {
-        cout<<"it= "<<(int)*it<<std::endl;
-    }
+
+//    // Testing reading binary from file
+//    inputFile.open("out.txt",ifstream::binary);
+//    std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(inputFile), {});
+//    for(auto it = buffer.begin();it != buffer.end();it++) {
+//        cout<<"it= "<<(int)*it<<std::endl;
+//    }
+//    inputFile.close();
+
+}
+
+void decompress(string inputFileName,string outputFileName) {
+
 }
