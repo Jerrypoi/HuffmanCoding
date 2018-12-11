@@ -11,3 +11,5 @@ make
 ./HuffmanCoding -c CompressFileName CompressedFileName 
 ./HuffmanCoding -d CompressedFileName DeCompressFileName
 ```
+
+**If this code present to help you, a star would be appreciated :)**
