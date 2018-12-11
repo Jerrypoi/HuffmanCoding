@@ -79,7 +79,6 @@ void compress(string inputFileName,string outFileName) {
     // Write the compressed data to the file.
     for (long long i = 0; i < filesize; i++) {
         byte key = inputFile.get();
-
         code += char_map[key];
         while (code.length() > 8) {
             byte out = 0;
@@ -137,11 +136,10 @@ void decompress(string inputFileName,string outputFileName) {
     long long filesize = 0;
     int i;
     for(i = 0;i < sizeof(long long);i++) {
-        filesize = filesize<<1;
+        filesize = filesize<<8; // TODO: determine 8 or 1
         filesize = filesize | data[i];
     }
     cout<<"Got filesize = "<<filesize<<std::endl;
-    inputFile.close();
     long long count = 0;
     map<byte,long long> char_freq;
     while(count < filesize) {
@@ -149,31 +147,28 @@ void decompress(string inputFileName,string outputFileName) {
         long long freq = 0;
         i++;
         for(int j = 0;j < sizeof(long long);j++,i++) {
-            freq = freq << 1;
+            freq = freq << 8;
             freq = freq | data[i];
         }
         char_freq.insert(std::pair<byte,long long>(temp,freq));
         count += freq;
     }
-
-
     // This test is passed zo~
     std::cout<<"decompress freq map:"<<std::endl;
     for (auto it = char_freq.begin(); it != char_freq.end(); it++) {
         std::cout << it->first << " " << it->second << std::endl;
     }
-
     // Build Huffman tree
     vector<Huffman *> tree_list;
     for(auto it = char_freq.begin();it != char_freq.end();it++) {
         Huffman *tree = new Huffman(true,it->first,it->second);
         tree_list.push_back(tree);
     }
-
     Huffman *tree = Huffman::build_tree(tree_list);
-
+    ofstream outputFile(outputFileName,ofstream::binary);
     map<byte, string> char_map;
     tree->traverse_tree(tree->get_root(), "", char_map);
+    HuffmanNode *node = tree->get_root();
     // TODO: 反向建立 map？ 即，<string,byte> 型？
     string code = "";
     for(;i < data.size();i++) {
@@ -187,10 +182,21 @@ void decompress(string inputFileName,string outputFileName) {
             };
             temp <<= 1;
         }
+        while(code.length() > 255) {
+            if(node->isleaf()) {
+                byte temp = node->get_value();
+                outputFile.write((const char*)&temp, sizeof(temp));
+                node = tree->get_root();
+            }
+            if(code[0] == '1') {
+                node = node->get_right_child();
+            } else {
+                node = node->get_left_child();
+            }
+            code = code.substr(1);
+        }
     }
     cout<<"code size: "<<code.length()<<std::endl;
-    ofstream outputFile(outputFileName,ofstream::binary);
-    HuffmanNode *node = tree->get_root();
     // First byte: the remaining bits length
     while(code.size() > 16){
         if(node->isleaf()) {

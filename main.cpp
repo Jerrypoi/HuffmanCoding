@@ -5,8 +5,7 @@
 using namespace std;
 int main() {
     std::cout << "Hello, World!" << std::endl;
-    string test = "01234567,";
-    compress("test.txt","out.cps");
+    compress("pikachu_testpass.txt","out.cps");
     decompress("out.cps","recover.txt");
     return 0;
 }
