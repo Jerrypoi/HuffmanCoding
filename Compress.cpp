@@ -2,10 +2,11 @@
 // Created by Jerry Zhang on 2018/11/29.
 //
 
-
 #include "Compress.h"
+#include <queue>
 using std::cout;
 using std::cerr;
+using std::queue;
 vector<byte> longlong2bytes(long long paramInt) {
     vector<unsigned char> arrayOfByte(sizeof(long long));
     for (int i = 0; i < sizeof(long long); i++)
@@ -170,33 +171,34 @@ void decompress(string inputFileName,string outputFileName) {
     tree->traverse_tree(tree->get_root(), "", char_map);
     HuffmanNode *node = tree->get_root();
     // TODO: 反向建立 map？ 即，<string,byte> 型？
-    string code = "";
+//    string code = "";
+    queue<char> code;
     for(;i < data.size();i++) {
         byte temp = data[i];
         int j = 0;
         for(j = 0;j < 8;j++) {
             if((temp & 128) == 128) {
-                code += "1";
+                code.push('1');
             } else {
-                code += "0";
+                code.push('0');
             };
             temp <<= 1;
         }
-        while(code.length() > 255) {
+        while(code.size() > 255) {
             if(node->isleaf()) {
                 byte temp = node->get_value();
                 outputFile.write((const char*)&temp, sizeof(temp));
                 node = tree->get_root();
             }
-            if(code[0] == '1') {
+            if(code.front() == '1') {
                 node = node->get_right_child();
             } else {
                 node = node->get_left_child();
             }
-            code = code.substr(1);
+            code.pop();
         }
     }
-    cout<<"code size: "<<code.length()<<std::endl;
+    cout<<"code size: "<<code.size()<<std::endl;
     // First byte: the remaining bits length
     while(code.size() > 16){
         if(node->isleaf()) {
@@ -204,46 +206,47 @@ void decompress(string inputFileName,string outputFileName) {
             outputFile.write((const char*)&temp, sizeof(temp));
             node = tree->get_root();
         }
-        if(code[0] == '1') {
+        if(code.front() == '1') {
             node = node->get_right_child();
         } else {
             node = node->get_left_child();
         }
-        code = code.substr(1);
+        code.pop();
     }
 
 
 //    HuffmanNode *node = tree->get_root();
 //    for(int i = 0;i < f)
-
-    string sub_code = code.substr(code.length()-16,8);
-
+//    string sub_code = code.substr(code.length()-16,8);
+    queue<char> sub_code;
+    for(int i = 0;i < 8;i++) {
+        sub_code.push(code.front());
+        code.pop();
+    }
 
     int last_len = 0;
     for(int j = 0;j < 8;j++) {
         last_len <<= 1;
-        if(sub_code[j] == '1' ) {
+        if(sub_code.front() == '1' ) {
             last_len = last_len | 1;
         }
+        sub_code.pop();
     }
-    cout<<"subcode = "<<sub_code<<std::endl;
     cout<<"last len = "<<last_len<<std::endl;
-    cout<<"current code = "<<code<<std::endl;
-    code = code.substr(0,code.length() - 16) + code.substr(code.length() - 8,last_len);
-    cout<<"last_code = "<<code<<std::endl;
-    while(code.length() > 0) {
+
+    while(code.size() > 0) {
         if(node->isleaf()) {
             byte temp = node->get_value();
             outputFile.write((const char *)&temp, sizeof(temp));
             node = tree->get_root();
         }
-        if(code[0] == '1') {
+        if(code.front() == '1') {
             node = node->get_right_child();
         }
         else {
             node = node->get_left_child();
         }
-        code = code.substr(1);
+        code.pop();
     }
     if(node->isleaf()) {
         byte temp = node->get_value();
