@@ -37,6 +37,7 @@ void compress(string inputFileName,string outFileName) {
     for (auto it = char_freq.begin(); it != char_freq.end(); it++) {
         std::cout << it->first << " " << it->second << std::endl;
     }
+
     vector<Huffman *> tree_list;
     for(auto it = char_freq.begin();it != char_freq.end();it++) {
         Huffman *tree = new Huffman(true,it->first,it->second);
@@ -94,8 +95,6 @@ void compress(string inputFileName,string outFileName) {
             code = code.substr(8);
         }
     }
-
-
     //处理不满 8 位的 code
     byte out = code.length();
     cout<<"Compressing last code len = " <<code.length()<<std::endl;
@@ -200,7 +199,7 @@ void decompress(string inputFileName,string outputFileName) {
     }
     cout<<"code size: "<<code.size()<<std::endl;
     // First byte: the remaining bits length
-    while(code.size() > 16){
+    while(code.size() > 16) {
         if(node->isleaf()) {
             byte temp = node->get_value();
             outputFile.write((const char*)&temp, sizeof(temp));
@@ -234,7 +233,7 @@ void decompress(string inputFileName,string outputFileName) {
     }
     cout<<"last len = "<<last_len<<std::endl;
 
-    while(code.size() > 0) {
+    for(int i = 0;i < last_len;i++) {
         if(node->isleaf()) {
             byte temp = node->get_value();
             outputFile.write((const char *)&temp, sizeof(temp));
